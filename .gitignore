@@ -1,0 +1,8 @@
+obj/
+bin/
+*.log
+*.log.*
+*.log.*.*
+*.log.*.*.*
+*.log.*.*.*.*
+program
