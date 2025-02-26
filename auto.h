@@ -25,12 +25,20 @@ class Automate {
         
         // Méthode pour afficher les piles
         void afficherPiles() const;
+        
+        // Nouvelle méthode pour corriger des erreurs courantes
+        bool corrigerErreur(Symbole * s);
+        
+        // Méthode pour compter les parenthèses
+        int compterParenthesesOuvrantes() const;
+        int compterParenthesesFermantes() const;
+        
+        vector<State*> pileEtats;
         vector<Symbole*> pileSymboles;
         
-    protected:
-        vector<State*> pileEtats;
-        
+    protected:        
         string expression;
         Lexer * lexer;
         bool verbose;
+        bool correctionEffectuee; // Pour suivre si une correction a été faite
 };

@@ -2,7 +2,7 @@
 #include "lexer.h"
 #include <iostream>
 
-Automate::Automate(string expression, bool verbose) : expression(expression), verbose(verbose) {
+Automate::Automate(string expression, bool verbose) : expression(expression), verbose(verbose), correctionEffectuee(false) {
     lexer = new Lexer(expression);
     // Initialisation de l'automate avec l'état E0
     pileEtats.push_back(new E0());
@@ -40,10 +40,15 @@ bool Automate::run() {
         // Appliquer les transitions selon l'état courant
         continue_analyse = pileEtats.back()->transition(*this, s);
         
-        // Si l'analyse ne doit pas continuer mais qu'on n'a pas FIN, c'est une erreur
-        if (!continue_analyse && *s != FIN) {
-            cout << "Erreur d'analyse syntaxique : symbole non attendu dans ce contexte" << endl;
-            return false;
+        // Si l'analyse ne peut pas continuer, essayer de corriger l'erreur
+        if (!continue_analyse) {
+            continue_analyse = corrigerErreur(s);
+            
+            // Si la correction n'est pas possible ou a échoué
+            if (!continue_analyse && *s != FIN) {
+                cout << "Erreur d'analyse syntaxique : symbole non attendu dans ce contexte" << endl;
+                return false;
+            }
         }
         
         // Ne pas terminer immédiatement si on voit FIN - continuer jusqu'à ce que la pile soit réduite à un seul élément
@@ -52,6 +57,11 @@ bool Automate::run() {
                 cout << "\n--- État final ---" << endl;
                 afficherPiles();
                 cout << "Analyse syntaxique réussie" << endl;
+            }
+            
+            // Afficher si une correction a été effectuée
+            if (correctionEffectuee) {
+                cout << "Note: L'expression a été corrigée automatiquement." << endl;
             }
             
             // Afficher le résultat final (même sans mode verbose)
@@ -193,4 +203,71 @@ void Automate::afficherPiles() const {
         cout << "] ";
     }
     cout << endl;
+}
+
+// Nouvelle méthode pour corriger les erreurs courantes
+bool Automate::corrigerErreur(Symbole * s) {
+    // Cas 1: Parenthèse fermante manquante à la fin
+    if (*s == FIN) {
+        int diff = compterParenthesesOuvrantes() - compterParenthesesFermantes();
+        
+        // S'il manque des parenthèses fermantes
+        if (diff > 0) {
+            if (verbose) {
+                cout << "Correction: Ajout de " << diff << " parenthèse(s) fermante(s) manquante(s)" << endl;
+            }
+            
+            // Ajouter virtuellement une parenthèse fermante
+            Symbole* closepar = new Symbole(CLOSEPAR);
+            
+            // Essayer de continuer l'analyse avec cette parenthèse
+            bool resultat = pileEtats.back()->transition(*this, closepar);
+            
+            if (resultat) {
+                correctionEffectuee = true;
+                return true; // La correction a réussi
+            } else {
+                delete closepar; // Nettoyer si la transition a échoué
+            }
+        }
+    }
+    
+    // Cas 2: Parenthèse fermante sans parenthèse ouvrante correspondante
+    if (*s == CLOSEPAR) {
+        int diff = compterParenthesesOuvrantes() - compterParenthesesFermantes();
+        
+        // Si nous avons déjà autant ou plus de parenthèses fermantes que d'ouvrantes
+        if (diff <= 0) {
+            if (verbose) {
+                cout << "Correction: Ignorer la parenthèse fermante excédentaire" << endl;
+            }
+            
+            // Sauter cette parenthèse et passer au symbole suivant
+            lexer->Avancer();
+            correctionEffectuee = true;
+            
+            // Indiquer que l'analyse doit continuer
+            return true;
+        }
+    }
+    
+    // Aucune correction n'a pu être appliquée
+    return false;
+}
+
+// Méthodes pour compter les parenthèses
+int Automate::compterParenthesesOuvrantes() const {
+    int count = 0;
+    for (Symbole* s : pileSymboles) {
+        if (*s == OPENPAR) count++;
+    }
+    return count;
+}
+
+int Automate::compterParenthesesFermantes() const {
+    int count = 0;
+    for (Symbole* s : pileSymboles) {
+        if (*s == CLOSEPAR) count++;
+    }
+    return count;
 }
