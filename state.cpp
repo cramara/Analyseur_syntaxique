@@ -25,6 +25,9 @@ bool E0::transition(Automate & automate, Symbole * s) {
             automate.transition(new E1());
             break;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E0 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -47,6 +50,9 @@ bool E1::transition(Automate & automate, Symbole * s) {
             // Accepter uniquement si la pile ne contient qu'un symbole (l'expression complète)
             return automate.pileSymboles.size() == 1;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E1 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -70,6 +76,9 @@ bool E2::transition(Automate & automate, Symbole * s) {
             automate.transition(new E6());
             break;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E2 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -89,6 +98,9 @@ bool E3::transition(Automate & automate, Symbole * s) {
             automate.reduire5();
             break;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E3 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -110,6 +122,9 @@ bool E4::transition(Automate & automate, Symbole * s) {
             automate.transition(new E7()); ///faire une transition vers E7 sans consommer le symbole E
             break;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E4 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -130,7 +145,11 @@ bool E5::transition(Automate & automate, Symbole * s) {
         case E:
             automate.transition(new E8());
             break;
-            
+        default:
+            cout << "Erreur : symbole inattendu dans l'état E5 - ";
+            s->Affiche();
+            cout << endl;
+            return false;
     }
     return true;
 }
@@ -151,6 +170,9 @@ bool E6::transition(Automate & automate, Symbole * s) {
             automate.decalage(s, new E9());
             break;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E6 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -175,6 +197,9 @@ bool E7::transition(Automate & automate, Symbole * s) {
             automate.reduire2();
             break;
         default:
+            cout << "Erreur : symbole inattendu dans l'état E7 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -186,13 +211,16 @@ void E7::afficher() {
 
 bool E8::transition(Automate & automate, Symbole * s) {
     switch(*s) {
-            case PLUS:
-            case MULT:
-            case CLOSEPAR:
-            case FIN:
-                automate.reduire3();
-                break;
-            default:
+        case PLUS:
+        case MULT:
+        case CLOSEPAR:
+        case FIN:
+            automate.reduire3();
+            break;
+        default:
+            cout << "Erreur : symbole inattendu dans l'état E8 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;
@@ -204,13 +232,16 @@ void E8::afficher() {
 
 bool E9::transition(Automate & automate, Symbole * s) {
     switch(*s) {
-            case PLUS:
-            case MULT:
-            case CLOSEPAR:
-            case FIN:
-                automate.reduire4();
-                break;
-            default:
+        case PLUS:
+        case MULT:
+        case CLOSEPAR:
+        case FIN:
+            automate.reduire4();
+            break;
+        default:
+            cout << "Erreur : symbole inattendu dans l'état E9 - ";
+            s->Affiche();
+            cout << endl;
             return false;
     }
     return true;

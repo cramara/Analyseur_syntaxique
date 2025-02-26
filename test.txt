@@ -1,0 +1,29 @@
+Enchainenment de 2 opérateurs : 
+
+125*+78+8 réponse attendue => erreur 
+125*+78+8 réponse attendue => 211 (si on considère qu'on saut le +)
+
+Pas de parenthèse fermante : 
+
+(34+1*123 => erreur pas de parenthèse fermante
+(34+1*123 => ajoute à la fin une parenthèse si il en manque => 157
+
+
+Pas de parenthèse ouvrante : 
+
+34+1-123) => erreur pas de parenthèse ouvrante
+34+1*123) => on ignore la parenthèse => 157
+34)+1*123 => on ignore la   parenthèse => 157
+
+Trop de parenthèses :
+
+((45+4*47) => erreur
+((45+4*47) => on ajoute une parenthèse à la fin => 233
+((45+4)*47 => on ajoute une parenthèse à la fin => 2303
+
+
+Autres cas : 
+
+((45+4*)47 => erreur
+
+

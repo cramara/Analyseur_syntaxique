@@ -1,12 +1,39 @@
 #include <iostream>
+#include <string>
 #include "lexer.h"
 #include "auto.h"
 
-int main(void) {
-   string chaine("(1+34)*123");
+// Variable globale pour le mode verbose
+bool verbose = false;
+
+int main(int argc, char* argv[]) {
+   string chaine;
+   bool expressionFournie = false;
+   
+   // Analyser les arguments de la ligne de commande
+   for (int i = 1; i < argc; i++) {
+      string arg = argv[i];
+      if (arg == "-v" || arg == "--verbose") {
+         verbose = true;
+      } else if (!expressionFournie) {
+         chaine = arg;
+         expressionFournie = true;
+      }
+   }
+   
+   // Si aucune expression n'a été fournie, utiliser l'expression par défaut
+   if (!expressionFournie) {
+      chaine = "((45+4*)47";
+      cout << "Aucune expression fournie. Utilisation de l'expression par défaut: " << chaine << endl;
+      cout << "Usage: ./program [-v] \"expression\"" << endl;
+      cout << "  -v, --verbose  : Affiche les détails de l'analyse" << endl;
+      cout << "Note: L'expression doit être entre guillemets pour éviter les erreurs avec les caractères spéciaux comme (, ), *" << endl;
+   }
+   
+   cout << "Expression à analyser: " << chaine << endl;
    
    // Créer et lancer l'automate avec l'expression
-   Automate automate(chaine);
+   Automate automate(chaine, verbose);
    bool resultat = automate.run();
    
    if (resultat) {
@@ -15,15 +42,17 @@ int main(void) {
       cout << "Erreur d'analyse de l'expression." << endl;
    }
    
-   // Pour vérification, aussi exécuter le code original du lexer
-   cout << "\nTest du lexer seul:" << endl;
-   Lexer l(chaine);
+   // Pour vérification, exécuter le code original du lexer seulement en mode verbose
+   if (verbose) {
+      cout << "\nTest du lexer seul:" << endl;
+      Lexer l(chaine);
 
-   Symbole * s;
-   while(*(s=l.Consulter())!=FIN) {
-      s->Affiche();
-      cout<<endl;
-      l.Avancer();
+      Symbole * s;
+      while(*(s=l.Consulter())!=FIN) {
+         s->Affiche();
+         cout<<endl;
+         l.Avancer();
+      }
    }
    
    return 0;

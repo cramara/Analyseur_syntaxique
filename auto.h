@@ -9,7 +9,7 @@ class Lexer;
 
 class Automate {
     public:
-        Automate(string expression);
+        Automate(string expression, bool verbose = false);
         ~Automate();
         
         bool run();
@@ -25,10 +25,12 @@ class Automate {
         
         // Méthode pour afficher les piles
         void afficherPiles() const;
+        vector<Symbole*> pileSymboles;
         
     protected:
         vector<State*> pileEtats;
-        vector<Symbole*> pileSymboles;
+        
         string expression;
         Lexer * lexer;
+        bool verbose;
 };
