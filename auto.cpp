@@ -209,6 +209,25 @@ void Automate::afficherPiles() const {
 bool Automate::corrigerErreur(Symbole * s) {
     // Cas 1: Parenthèse fermante manquante à la fin
     if (*s == FIN) {
+        // Vérifier si le dernier symbole est un opérateur
+        if (!pileSymboles.empty()) {
+            Symbole* dernierSymbole = pileSymboles.back();
+            if (*dernierSymbole == PLUS || *dernierSymbole == MULT) {
+                cout << "Correction: Opérateur en fin d'expression ignoré" << endl;
+                
+                // Supprimer l'opérateur de la pile
+                delete pileSymboles.back();
+                pileSymboles.pop_back();
+                
+                // Supprimer l'état correspondant
+                delete pileEtats.back();
+                pileEtats.pop_back();
+                
+                correctionEffectuee = true;
+                return true;
+            }
+        }
+        
         int diff = compterParenthesesOuvrantes() - compterParenthesesFermantes();
         
         // S'il manque des parenthèses fermantes
@@ -243,6 +262,37 @@ bool Automate::corrigerErreur(Symbole * s) {
             }
             
             // Sauter cette parenthèse et passer au symbole suivant
+            lexer->Avancer();
+            correctionEffectuee = true;
+            
+            // Indiquer que l'analyse doit continuer
+            return true;
+        }
+    }
+    
+    // Cas 3: Opérateurs consécutifs (++, **, +*, *+)
+    if (*s == PLUS || *s == MULT) {
+        // Cas 3a: Opérateur en début d'expression (pile vide)
+        if (pileSymboles.empty()) {
+            cout << "Correction: Opérateur en début d'expression ignoré" << endl;
+            
+            // Sauter cet opérateur et passer au symbole suivant
+            lexer->Avancer();
+            correctionEffectuee = true;
+            
+            // Indiquer que l'analyse doit continuer
+            return true;
+        }
+        
+        // Cas 3b: Opérateurs consécutifs
+        Symbole* dernierSymbole = pileSymboles.back();
+        if (*dernierSymbole == PLUS || *dernierSymbole == MULT) {
+            // Opérateurs consécutifs détectés
+            cout << "Correction: Opérateurs consécutifs détectés. Ignorer le second opérateur ";
+            s->Affiche();
+            cout << endl;
+            
+            // Sauter cet opérateur et passer au symbole suivant
             lexer->Avancer();
             correctionEffectuee = true;
             
