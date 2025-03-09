@@ -36,9 +36,14 @@ bool Automate::run() {
             s->Affiche();
             cout << endl;
         }
+        string etiquette= s->getEtiquette();
+        if (etiquette=="INT") {
+            Entier* e = static_cast<Entier*>(s);
+            symboles[e->getId()] = "INT("+to_string(e->Valeur())+")";
+        }
+        else symboles[s->getId()] = s->getEtiquette();
+
         
-        symboles[s->getId()] = s->getEtiquette();
-        cout<<"added "<<s->getId()<<" "<<s->getEtiquette()<<endl;
         // Appliquer les transitions selon l'état courant
         continue_analyse = pileEtats.back()->transition(*this, s);
         
@@ -131,7 +136,8 @@ void Automate::reduire2() {
     Symbole* op = pileSymboles[pileSymboles.size()-2];
     // Créer un nouveau symbole qui représente la valeur calculée
     Expression* resultat = new Expression(e1->Valeur() + e2->Valeur());
-    symboles[resultat->getId()] = "E";
+    int val = e1->Valeur() + e2->Valeur();
+    symboles[resultat->getId()] = "E("+to_string(val)+")";
     graph[resultat->getId()] ={e1->getId(),op->getId(),e2->getId()};
     if (verbose) {
         cout << "Réduction par la règle 2 : E -> E + E (" << e1->Valeur() << " + " << e2->Valeur() << " = " << resultat->Valeur() << ")" << endl;
@@ -148,7 +154,8 @@ void Automate::reduire3() {
     Symbole* op = pileSymboles[pileSymboles.size()-2];
     // Créer un nouveau symbole qui représente la valeur calculée
     Expression* resultat = new Expression(e1->Valeur() * e2->Valeur());
-    symboles[resultat->getId()] = "E";
+    int val = e1->Valeur() * e2->Valeur();
+    symboles[resultat->getId()] = "E("+ to_string(val)+")" ;
     graph[resultat->getId()] ={e1->getId(),op->getId(),e2->getId()};
     if (verbose) {
         cout << "Réduction par la règle 3 : E -> E * E (" << e1->Valeur() << " * " << e2->Valeur() << " = " << resultat->Valeur() << ")" << endl;
@@ -166,7 +173,8 @@ void Automate::reduire4() {
     Symbole * closepar = pileSymboles[pileSymboles.size()-1];
     // Créer un nouveau symbole E avec la même valeur
     Expression* resultat = new Expression(e->Valeur());
-    symboles[resultat->getId()] = "E";
+    int val = e->Valeur();
+    symboles[resultat->getId()] = "E("+to_string(val)+")";;
     graph[resultat->getId()] ={openpar->getId(),e->getId(),closepar->getId()};
     if (verbose) {
         cout << "Réduction par la règle 4 : E -> ( E ) (valeur = " << resultat->Valeur() << ")" << endl;
@@ -182,7 +190,8 @@ void Automate::reduire5() {
     
     // Créer un nouveau symbole E avec la valeur de l'entier
     Expression* resultat = new Expression(e->Valeur());
-    symboles[resultat->getId()] = "E";
+    int val = e->Valeur();
+    symboles[resultat->getId()] = "E("+to_string(val)+")";
     graph[resultat->getId()] ={e->getId()};
     if (verbose) {
         cout << "Réduction par la règle 5 : E -> val (valeur = " << resultat->Valeur() << ")" << endl;

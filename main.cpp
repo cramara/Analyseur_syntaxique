@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
          l.Avancer();
       }
    }
-   automate.afficherEnfants();
+   //automate.afficherEnfants();
    automate.AffciherArbre();
    return 0;
 }
