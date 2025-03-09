@@ -9,13 +9,20 @@ const string Etiquettes[] = { "OPENPAR", "CLOSEPAR", "PLUS", "MULT", "INT", "FIN
 
 class Symbole {
    public:
-      Symbole(int i) : ident(i) {  }
+      Symbole(int i) : ident(i), id(GenerateID()) {  }
       virtual ~Symbole() { }
       operator int() const { return ident; }
       virtual void Affiche();
-
+      int getId() const { return id; }
+      string getEtiquette() const { return Etiquettes[ident]; }
    protected:
+   static int GenerateID()
+   {
+      static int counter = 0;
+      return counter++;
+   }
       int ident;
+      int id;
 };
 
 class Entier : public Symbole {
@@ -37,4 +44,5 @@ class Expression : public Symbole {
    protected:
       int valeur;
 };
+
 

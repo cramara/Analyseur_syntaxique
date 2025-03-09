@@ -37,6 +37,8 @@ bool Automate::run() {
             cout << endl;
         }
         
+        symboles[s->getId()] = s->getEtiquette();
+        cout<<"added "<<s->getId()<<" "<<s->getEtiquette()<<endl;
         // Appliquer les transitions selon l'état courant
         continue_analyse = pileEtats.back()->transition(*this, s);
         
@@ -126,10 +128,11 @@ void Automate::reduire2() {
     // Règle 2 : E -> E + E
     Entier* e1 = static_cast<Entier*>(pileSymboles[pileSymboles.size()-3]);
     Entier* e2 = static_cast<Entier*>(pileSymboles[pileSymboles.size()-1]);
-    
+    Symbole* op = pileSymboles[pileSymboles.size()-2];
     // Créer un nouveau symbole qui représente la valeur calculée
     Expression* resultat = new Expression(e1->Valeur() + e2->Valeur());
-    
+    symboles[resultat->getId()] = "E";
+    graph[resultat->getId()] ={e1->getId(),op->getId(),e2->getId()};
     if (verbose) {
         cout << "Réduction par la règle 2 : E -> E + E (" << e1->Valeur() << " + " << e2->Valeur() << " = " << resultat->Valeur() << ")" << endl;
     }
@@ -142,10 +145,11 @@ void Automate::reduire3() {
     // Règle 3 : E -> E * E
     Entier* e1 = static_cast<Entier*>(pileSymboles[pileSymboles.size()-3]);
     Entier* e2 = static_cast<Entier*>(pileSymboles[pileSymboles.size()-1]);
-    
+    Symbole* op = pileSymboles[pileSymboles.size()-2];
     // Créer un nouveau symbole qui représente la valeur calculée
     Expression* resultat = new Expression(e1->Valeur() * e2->Valeur());
-    
+    symboles[resultat->getId()] = "E";
+    graph[resultat->getId()] ={e1->getId(),op->getId(),e2->getId()};
     if (verbose) {
         cout << "Réduction par la règle 3 : E -> E * E (" << e1->Valeur() << " * " << e2->Valeur() << " = " << resultat->Valeur() << ")" << endl;
     }
@@ -158,10 +162,12 @@ void Automate::reduire4() {
     // Règle 4 : E -> ( E )
     // Récupérer la valeur de l'expression entre parenthèses
     Entier* e = static_cast<Entier*>(pileSymboles[pileSymboles.size()-2]);
-    
+    Symbole * openpar = pileSymboles[pileSymboles.size()-3];
+    Symbole * closepar = pileSymboles[pileSymboles.size()-1];
     // Créer un nouveau symbole E avec la même valeur
     Expression* resultat = new Expression(e->Valeur());
-    
+    symboles[resultat->getId()] = "E";
+    graph[resultat->getId()] ={openpar->getId(),e->getId(),closepar->getId()};
     if (verbose) {
         cout << "Réduction par la règle 4 : E -> ( E ) (valeur = " << resultat->Valeur() << ")" << endl;
     }
@@ -176,7 +182,8 @@ void Automate::reduire5() {
     
     // Créer un nouveau symbole E avec la valeur de l'entier
     Expression* resultat = new Expression(e->Valeur());
-    
+    symboles[resultat->getId()] = "E";
+    graph[resultat->getId()] ={e->getId()};
     if (verbose) {
         cout << "Réduction par la règle 5 : E -> val (valeur = " << resultat->Valeur() << ")" << endl;
     }
@@ -320,4 +327,78 @@ int Automate::compterParenthesesFermantes() const {
         if (*s == CLOSEPAR) count++;
     }
     return count;
+}
+
+void Automate::afficherEnfants() {
+    for (auto const& [key, val] : graph) {
+        cout << "ID: "<< symboles[key];
+        cout << " -> ";
+        for (int i : val) {
+            cout << symboles[i];
+            cout << " ";
+        }
+        cout << endl;
+    }
+}
+
+
+
+// Méthode membre de la classe Automate
+void Automate::AffciherArbre() const {
+    // Récupération de l'ensemble de tous les nœuds
+    set<int> allNodes;
+    for (const auto& kv : symboles) {
+        allNodes.insert(kv.first);
+    }
+    
+    // Récupération de l'ensemble des nœuds qui apparaissent comme enfants dans graph
+    set<int> childNodes;
+    for (const auto& kv : graph) {
+        for (int child : kv.second) {
+            childNodes.insert(child);
+        }
+    }
+    
+    // Détermination des racines : les nœuds de allNodes qui ne figurent pas dans childNodes
+    vector<int> roots;
+    for (int node : allNodes) {
+        if (childNodes.find(node) == childNodes.end()) {
+            roots.push_back(node);
+        }
+    }
+    
+    // Si aucune racine n'est identifiée, on considère que tous les nœuds sont des racines potentielles
+    if (roots.empty()) {
+        roots.assign(allNodes.begin(), allNodes.end());
+    }
+    
+    // Fonction lambda récursive pour afficher l'arbre
+    function<void(int, string, bool)> printTree = [&](int node, string prefix, bool isLast) {
+        cout << prefix;
+        if (!prefix.empty()) {
+            cout << (isLast ? "└─ " : "├─ ");
+        }
+        // Récupération du nom du symbole pour le nœud courant
+        auto it = symboles.find(node);
+        string nodeName = (it != symboles.end()) ? it->second : "Inconnu";
+        cout << nodeName  << endl;
+        
+        // Recherche des enfants du nœud dans graph
+        auto itGraph = graph.find(node);
+        if (itGraph != graph.end()) {
+            // Pour un affichage cohérent, on trie les enfants
+            vector<int> children = itGraph->second;
+            sort(children.begin(), children.end());
+            for (size_t i = 0; i < children.size(); i++) {
+                bool lastChild = (i == children.size() - 1);
+                printTree(children[i], prefix + (isLast ? "   " : "│  "), lastChild);
+            }
+        }
+    };
+    
+    // Affichage de l'arbre pour chaque racine trouvée
+    for (size_t i = 0; i < roots.size(); i++) {
+        bool isLastRoot = (i == roots.size() - 1);
+        printTree(roots[i], "", isLastRoot);
+    }
 }

@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
    
    // Si aucune expression n'a été fournie, utiliser l'expression par défaut
    if (!expressionFournie) {
-      chaine = "1+2";
+      chaine = "(1+2)*8";
       cout << "Aucune expression fournie. Utilisation de l'expression par défaut: " << chaine << endl;
       cout << "Usage: ./program [-v] \"expression\"" << endl;
       cout << "  -v, --verbose  : Affiche les détails de l'analyse" << endl;
@@ -54,7 +54,8 @@ int main(int argc, char* argv[]) {
          l.Avancer();
       }
    }
-   
+   automate.afficherEnfants();
+   automate.AffciherArbre();
    return 0;
 }
 

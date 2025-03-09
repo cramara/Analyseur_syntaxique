@@ -1,7 +1,10 @@
 #pragma once
-
+#include <set>
+#include <algorithm>
+#include <functional>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "state.h"
 #include "symbole.h"
 
@@ -16,7 +19,7 @@ class Automate {
         void decalage(Symbole * s, State * e);
         void reduction(int n, Symbole * s);
         void transition(State * e);
-        
+        void afficherEnfants();
         // Méthodes de réduction pour chaque règle
         void reduire2();  // E -> E + E
         void reduire3();  // E -> E * E
@@ -32,7 +35,7 @@ class Automate {
         // Méthode pour compter les parenthèses
         int compterParenthesesOuvrantes() const;
         int compterParenthesesFermantes() const;
-        
+        void AffciherArbre()const;
         vector<State*> pileEtats;
         vector<Symbole*> pileSymboles;
         
@@ -41,4 +44,8 @@ class Automate {
         Lexer * lexer;
         bool verbose;
         bool correctionEffectuee; // Pour suivre si une correction a été faite
+        unordered_map<int,string> symboles;
+        unordered_map<int, vector<int>> graph;
+
 };
+
