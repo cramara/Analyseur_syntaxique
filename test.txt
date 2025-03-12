@@ -27,3 +27,11 @@ Autres cas :
 ((45+4*)47 => erreur
 
 
+Erreur lorsqu'il y a un retour à la ligne dans l'expression : 
+
+(1+2)
+*3
+
+==> Erreur: L'expression contient des retours à la ligne, ce qui n'est pas autorisé.
+
+

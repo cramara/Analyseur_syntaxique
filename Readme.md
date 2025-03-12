@@ -1,3 +1,5 @@
+Auteurs du projet : Gabin Joussot-Dubien / Abderrahmane Bouziane / Mathias Muhulet   
+
 Pour compiler le programme : 
 ```make```
 
@@ -7,6 +9,10 @@ Pour clean les .o :
 Pour lancer le programme : 
 
 ./program "expression"
+
+-h | --help pour afficher les commande
+
+-t | --tree pour afficher l'arbre
 
 -v | --verbose pour verbose = true
 
